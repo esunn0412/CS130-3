@@ -8,11 +8,11 @@ const operators = {
 class Calculator {
   constructor() {
     this.displayElement = document.querySelector(".display");
-    this.display = "0";
     this.firstOperand = null;
     this.operator = null;
     this.secondOperand = null;
     this.isDecimalUsed = false;
+    this.display = "0";
   }
 
   set display(value) {
@@ -47,7 +47,7 @@ class Calculator {
   }
 
   set secondOperand(value) {
-    if (!this.firstOperand || !this.operator) return;
+    if (value != null && (!this.firstOperand || !this.operator)) return;
 
     this._secondOperand = value;
     this.display = value;
@@ -58,11 +58,11 @@ class Calculator {
   }
 
   clear() {
-    this.display = "0";
     this.firstOperand = null;
     this.operator = null;
     this.secondOperand = null;
     this.isDecimalUsed = false;
+    this.display = "0";
   }
 
   back() {
@@ -73,6 +73,7 @@ class Calculator {
         this.secondOperand = null;
       }
       this.display = "0";
+      return;
     }
 
     if (!this.operator) {
@@ -91,8 +92,10 @@ class Calculator {
 
       if (this.firstOperand.startsWith("-")) {
         this.display = this.firstOperand.slice(1);
+        return;
       } else {
         this.display = "-" + this.firstOperand;
+        return;
       }
     }
 
@@ -124,8 +127,70 @@ class Calculator {
   }
 }
 
-const cal = new Calculator();
-cal.firstOperand = "1";
-cal.back();
+// now we connect the buttons to the calculator
+const calculator = new Calculator();
 
-console.log(cal);
+document.querySelectorAll(".num-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    const value = button.textContent;
+
+    if (value === ".") {
+      if (calculator.isDecimalUsed) return;
+      if (!calculator.operator) {
+        calculator.firstOperand = calculator.firstOperand || "0";
+      } else {
+        calculator.secondOperand = calculator.secondOperand || "0";
+      }
+      calculator.isDecimalUsed = true;
+    }
+
+    if (!calculator.operator) {
+      calculator.firstOperand = calculator.firstOperand
+        ? calculator.firstOperand + value
+        : value;
+    } else {
+      calculator.secondOperand = calculator.secondOperand
+        ? calculator.secondOperand + value
+        : value;
+    }
+  });
+});
+
+document.querySelectorAll(".operator-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    const operator = button.textContent;
+
+    calculator.operator = operator;
+  });
+});
+
+document.querySelectorAll(".func-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    let func = button.textContent;
+
+    console.log(func);
+
+    switch (func) {
+      case "AC":
+        calculator.clear();
+        break;
+      case "Back":
+        calculator.back();
+        break;
+      case "+/-":
+        calculator.signSwitch();
+        console.log(calculator);
+        break;
+    }
+  });
+});
+
+document.querySelector(".equals-btn").addEventListener("click", () => {
+  calculator.equals();
+});
+
+// const cal = new Calculator();
+// cal.firstOperand = "1";
+// cal.back();
+
+// console.log(cal);
